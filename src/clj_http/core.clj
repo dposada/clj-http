@@ -176,7 +176,7 @@
         ^HttpClientContext context (http-context request-config)
         ^HttpRequest http-req (http-request-for request-method http-url body)]
     (when spnego-auth
-        (.setAuthSchemeRegistry context (doto (RegistryBuilder/create)
+      (.setAuthSchemeRegistry context (-> (RegistryBuilder/create)
                                           (.register AuthSchemes/SPNEGO (SPNegoSchemeFactory.))
                                           (.build)))
         (.setCredentialsProvider context (doto (credentials-provider)
