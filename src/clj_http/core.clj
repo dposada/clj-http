@@ -16,6 +16,11 @@
                                            HttpOptions HttpPatch
                                            HttpHead
                                            HttpEntityEnclosingRequestBase)
+           (org.apache.http.client.params AuthPolicy)
+           (org.apache.http.auth AuthScope)
+           (org.apache.http.client.config AuthSchemes)
+           (org.apache.http.impl.auth SPNegoSchemeFactory)
+           (org.apache.http.auth UsernamePasswordCredentials)
            (org.apache.http.client.protocol HttpClientContext)
            (org.apache.http.config RegistryBuilder)
            (org.apache.http.conn HttpClientConnectionManager)
@@ -152,7 +157,8 @@
            server-name
            server-port
            socket-timeout
-           uri]
+           uri
+           spnego-auth]
     :as req}]
   (let [scheme (name scheme)
         http-url (str scheme "://" server-name
@@ -169,6 +175,12 @@
                                                  retry-handler)
         ^HttpClientContext context (http-context request-config)
         ^HttpRequest http-req (http-request-for request-method http-url body)]
+    (when spnego-auth
+        (.setAuthSchemeRegistry context (doto (RegistryBuilder/create)
+                                          (.register AuthSchemes/SPNEGO (SPNegoSchemeFactory.))
+                                          (.build)))
+        (.setCredentialsProvider context (doto (credentials-provider)
+                                           (.setCredentials AuthScope/ANY (UsernamePasswordCredentials. "u" "p")))))
     (when-not (conn/reusable? conn-mgr)
       (.addHeader http-req "Connection" "close"))
     (when cookie-store
