@@ -179,8 +179,8 @@
       (.setAuthSchemeRegistry context (-> (RegistryBuilder/create)
                                           (.register AuthSchemes/SPNEGO (SPNegoSchemeFactory.))
                                           (.build)))
-        (.setCredentialsProvider context (doto (credentials-provider)
-                                           (.setCredentials AuthScope/ANY (UsernamePasswordCredentials. "u" "p")))))
+      (.setCredentialsProvider context (doto (credentials-provider)
+                                         (.setCredentials AuthScope/ANY (UsernamePasswordCredentials. "u" "p")))))
     (when-not (conn/reusable? conn-mgr)
       (.addHeader http-req "Connection" "close"))
     (when cookie-store
